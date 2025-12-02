@@ -3,7 +3,7 @@ package com.example.taskapi.service
 import com.example.taskapi.dto.board.BoardResponse
 import com.example.taskapi.dto.board.CreateBoardRequest
 import com.example.taskapi.dto.board.UpdateBoardRequest
-import com.example.taskapi.exception.BoardNotFoundException
+import com.example.taskapi.dto.websocket.BoardEvent
 import com.example.taskapi.model.Board
 import com.example.taskapi.repository.BoardRepository
 import com.example.taskapi.repository.UserRepository
@@ -18,46 +18,59 @@ class BoardService(
     private val boardRepository: BoardRepository,
     private val userRepository: UserRepository,
     private val securityService: SecurityService,
-    private val boardMapper: BoardMapper
+    private val boardMapper: BoardMapper,
+    private val notifications: NotificationService
 ) {
 
+    @Transactional
     fun createBoard(ownerId: Long, request: CreateBoardRequest): BoardResponse {
-        val owner = userRepository.findById(ownerId)
-            .orElseThrow { IllegalStateException("Owner not found") }
-
-        val board = Board(
-            name = request.name.trim(),
-            owner = owner
+        val owner = userRepository.findById(ownerId).orElseThrow()
+        val board = boardRepository.save(
+            Board(
+                name = request.name,
+                owner = owner
+            )
         )
+        val dto = boardMapper.toResponse(board)
 
-        val saved = boardRepository.save(board)
-        return boardMapper.toResponse(saved)
+        notifications.boardEvent(board.id!!, BoardEvent("BOARD_CREATED", dto))
+
+        return dto
     }
 
+    @Transactional
     fun updateBoard(boardId: Long, userId: Long, request: UpdateBoardRequest): BoardResponse {
         securityService.assertIsOwner(boardId, userId)
 
-        val board = boardRepository.findById(boardId)
-            .orElseThrow { BoardNotFoundException(boardId) }
-
+        val board = boardRepository.findById(boardId).orElseThrow()
         board.name = request.name.trim()
 
         val saved = boardRepository.save(board)
-        return boardMapper.toResponse(saved)
+        val dto = boardMapper.toResponse(saved)
+
+        notifications.boardEvent(boardId, BoardEvent("BOARD_UPDATED", dto))
+
+        return dto
     }
 
+    @Transactional
     fun deleteBoard(boardId: Long, userId: Long) {
         securityService.assertIsOwner(boardId, userId)
         boardRepository.deleteById(boardId)
+        notifications.boardEvent(boardId, BoardEvent("BOARD_DELETED", BoardResponse(
+            id = boardId,
+            name = null,
+            owner = null,
+            members = null
+        )))
     }
 
     fun getBoard(boardId: Long, userId: Long): BoardResponse {
         securityService.assertIsOwnerOrMember(boardId, userId)
-        val found = boardRepository.findById(boardId)
-            .orElseThrow { BoardNotFoundException(boardId) }
+        val found = boardRepository.findById(boardId).orElseThrow()
         return boardMapper.toResponse(found)
     }
 
     fun listBoards(ownerId: Long, pageable: Pageable): Page<BoardResponse> =
-        boardRepository.findAllByOwnerId(ownerId, pageable).map{boardMapper.toResponse(it)}
+        boardRepository.findAllByOwnerId(ownerId, pageable).map { boardMapper.toResponse(it) }
 }

@@ -8,15 +8,15 @@ class NotificationService(
     private val messaging: SimpMessagingTemplate
 ) {
 
-    fun <T: Any> broadcastBoardEvent(boardId: Long, event: T) {
+    fun <T : Any> boardEvent(boardId: Long, event: T) {
         messaging.convertAndSend("/topic/boards/$boardId/events", event)
     }
 
-    fun <T: Any> broadcastTaskEvent(boardId: Long, taskId: Long, event: T) {
+    fun <T : Any> taskEvent(boardId: Long, taskId: Long, event: T) {
         messaging.convertAndSend("/topic/boards/$boardId/tasks/$taskId/events", event)
     }
 
-    fun <T: Any> broadcastCommentEvent(taskId: Long, event: T) {
+    fun <T : Any> commentEvent(taskId: Long, event: T) {
         messaging.convertAndSend("/topic/tasks/$taskId/comments/events", event)
     }
 }

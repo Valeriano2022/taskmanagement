@@ -2,6 +2,7 @@ package com.example.taskapi.service
 
 import com.example.taskapi.dto.comment.CreateCommentRequest
 import com.example.taskapi.dto.comment.TaskCommentResponse
+import com.example.taskapi.dto.websocket.CommentEvent
 import com.example.taskapi.exception.TaskNotFoundException
 import com.example.taskapi.model.TaskComment
 import com.example.taskapi.repository.*
@@ -15,36 +16,37 @@ class CommentService(
     private val commentRepository: TaskCommentRepository,
     private val userRepository: UserRepository,
     private val boardMemberRepository: BoardMemberRepository,
-    private val commentMapper: CommentMapper
+    private val commentMapper: CommentMapper,
+    private val notifications: NotificationService
 ) {
 
     @Transactional
     fun createComment(taskId: Long, userId: Long, request: CreateCommentRequest): TaskCommentResponse {
-        val task = taskRepository.findById(taskId)
-            .orElseThrow { TaskNotFoundException(taskId) }
+        val task = taskRepository.findById(taskId).orElseThrow { TaskNotFoundException(taskId) }
 
-        val isMember = boardMemberRepository.existsByBoardIdAndUserId(task.board.id!!, userId)
-
-        if (!isMember) {
-            throw com.example.taskapi.exception.ForbiddenException(
-                "Only board members may comment"
-            )
+        if (!boardMemberRepository.existsByBoardIdAndUserId(task.board.id!!, userId)) {
+            throw com.example.taskapi.exception.ForbiddenException("Only board members may comment")
         }
 
         val author = userRepository.findById(userId).orElseThrow()
 
-        val saved =  commentRepository.save(
+        val saved = commentRepository.save(
             TaskComment(
                 content = request.content.trim(),
                 task = task,
                 author = author
             )
         )
-        return commentMapper.toResponse(saved)
+
+        val dto = commentMapper.toResponse(saved)
+        notifications.commentEvent(taskId, CommentEvent("COMMENT_CREATED", dto))
+
+        return dto
     }
 
     fun listComments(taskId: Long) =
         taskRepository.findById(taskId)
             .orElseThrow { TaskNotFoundException(taskId) }
-            .comments.map{ commentMapper.toResponse(it) }
+            .comments
+            .map { commentMapper.toResponse(it) }
 }
