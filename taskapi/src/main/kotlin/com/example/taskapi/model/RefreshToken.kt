@@ -20,5 +20,8 @@ data class RefreshToken(
     val expiryDate: Instant,
 
     @Column(nullable = false)
-    val revoked: Boolean = false
+    val revoked: Boolean = false,
+
+    @Embedded
+    var audit: AuditFields = AuditFields()
 ): BaseEntity()

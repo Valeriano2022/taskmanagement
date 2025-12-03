@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "boards")
 data class Board(
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
     @Column(nullable = false)
@@ -19,5 +19,8 @@ data class Board(
     val memberships: List<BoardMember> = emptyList(),
 
     @OneToMany(mappedBy = "board", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val tasks: List<Task> = emptyList()
+    val tasks: List<Task> = emptyList(),
+
+    @Embedded
+    var audit: AuditFields = AuditFields()
 ) : BaseEntity()

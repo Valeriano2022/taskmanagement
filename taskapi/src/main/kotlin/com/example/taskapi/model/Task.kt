@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "tasks")
 data class Task(
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
     @Column(nullable = false)
@@ -23,5 +23,8 @@ data class Task(
     var assignee: User? = null,
 
     @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val comments: List<TaskComment> = emptyList()
+    val comments: List<TaskComment> = emptyList(),
+
+    @Embedded
+    var audit: AuditFields = AuditFields()
 ): BaseEntity()

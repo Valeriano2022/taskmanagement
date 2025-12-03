@@ -3,6 +3,7 @@ package com.example.taskapi.controller
 import com.example.taskapi.dto.board.CreateBoardRequest
 import com.example.taskapi.dto.board.UpdateBoardRequest
 import com.example.taskapi.dto.board.BoardResponse
+import com.example.taskapi.exception.BoardNotFoundException
 import com.example.taskapi.hateoas.BoardLinks
 import com.example.taskapi.utils.mapper.BoardMapper
 import com.example.taskapi.security.CustomUserPrincipal

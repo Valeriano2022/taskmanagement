@@ -8,23 +8,23 @@ import org.springframework.stereotype.Component
 @Component
 class BoardLinks {
 
-    fun self(boardId: Long) =
+    fun self(boardId: Long?) =
         linkTo(BoardController::class.java)
             .slash(boardId)
             .withSelfRel()
 
-    fun tasks(boardId: Long) =
+    fun tasks(boardId: Long?) =
         linkTo(BoardController::class.java)
             .slash(boardId)
             .slash("tasks")
             .withRel("tasks")
 
-    fun update(boardId: Long) =
+    fun update(boardId: Long?) =
         linkTo(BoardController::class.java)
             .slash(boardId)
             .withRel("update")
 
-    fun delete(boardId: Long) =
+    fun delete(boardId: Long?) =
         linkTo(BoardController::class.java)
             .slash(boardId)
             .withRel("delete")
@@ -33,7 +33,7 @@ class BoardLinks {
         linkTo(BoardController::class.java)
             .withRel("boards")
 
-    fun <T : Any> addTo(model: EntityModel<T>, boardId: Long): EntityModel<T> =
+    fun <T : Any> addTo(model: EntityModel<T>, boardId: Long?): EntityModel<T> =
         model
             .add(self(boardId))
             .add(tasks(boardId))

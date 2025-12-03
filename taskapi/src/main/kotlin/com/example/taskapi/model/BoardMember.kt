@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "board_members")
 data class BoardMember(
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
     @ManyToOne(optional = false)
@@ -18,5 +18,8 @@ data class BoardMember(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val role: Role
+    val role: Role,
+
+    @Embedded
+    var audit: AuditFields = AuditFields()
 ): BaseEntity()

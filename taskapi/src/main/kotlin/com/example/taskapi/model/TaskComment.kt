@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "task_comments")
 data class TaskComment(
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
     @Column(nullable = false)
@@ -17,5 +17,8 @@ data class TaskComment(
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
-    val author: User
+    val author: User,
+
+    @Embedded
+    var audit: AuditFields = AuditFields()
 ): BaseEntity()

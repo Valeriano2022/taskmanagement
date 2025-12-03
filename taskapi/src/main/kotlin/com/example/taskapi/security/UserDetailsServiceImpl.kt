@@ -20,6 +20,7 @@ class UserDetailsServiceImpl(
             userId = user.id!!,
             email = user.email,
             password = user.password
+
         )
     }
 }
