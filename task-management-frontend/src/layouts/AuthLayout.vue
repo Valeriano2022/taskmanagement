@@ -1,40 +1,42 @@
 <template>
-  <div class="auth-wrapper">
-    <div class="auth-inner">
-      <slot />
+  <div class="auth-layout">
+    <header class="auth-header">
+      <h1>TaskMaster</h1>
+    </header>
+    <div class="auth-content">
+      <slot></slot>
     </div>
   </div>
 </template>
 
+<script setup lang="ts">
+// Layout component
+</script>
+
 <style scoped>
-.auth-wrapper {
-  width: 100vw;
-  height: 100vh;
-  background: #f4f6f8;
+.auth-layout {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  overflow: hidden;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f0f2f5; /* Light background for auth */
 }
 
-.auth-inner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.auth-header {
+    margin-bottom: 30px;
+}
+.auth-header h1 {
+    color: #3f51b5; /* Indigo */
+    font-size: 2.5em;
+}
+
+.auth-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 500px;
-  padding: 1rem;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  max-width: 400px;
 }
 </style>
