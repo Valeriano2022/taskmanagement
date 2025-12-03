@@ -4,6 +4,7 @@ import com.example.taskapi.exception.UnauthorizedOperationException
 import com.example.taskapi.model.RefreshToken
 import com.example.taskapi.repository.RefreshTokenRepository
 import com.example.taskapi.repository.UserRepository
+import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -57,6 +58,7 @@ class RefreshTokenService(
         refreshTokenRepository.save(updated)
     }
 
+    @Transactional
     fun revokeAllTokensForUser(userId: Long) {
         refreshTokenRepository.deleteByUserId(userId)
     }

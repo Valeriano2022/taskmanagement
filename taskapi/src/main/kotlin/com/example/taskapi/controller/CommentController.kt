@@ -5,7 +5,6 @@ import com.example.taskapi.dto.comment.TaskCommentResponse
 import com.example.taskapi.hateoas.CommentLinks
 import com.example.taskapi.security.CustomUserPrincipal
 import com.example.taskapi.service.CommentService
-import com.example.taskapi.utils.mapper.CommentMapper
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity

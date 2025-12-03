@@ -34,8 +34,8 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it
                     .requestMatchers(
-                        "/api/login",
-                        "/api/signup",
+                        "/api/auth/login",
+                        "/api/auth/signup",
                         "/api/auth/**",
                         "/api/refresh",
                         "/error"

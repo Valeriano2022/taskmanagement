@@ -42,9 +42,9 @@ class MemberController(
 
     @DeleteMapping("/{userId}")
     fun removeMember(authentication: Authentication, @PathVariable boardId: Long, @PathVariable userId: Long)
-            : ResponseEntity<EntityModel<Map<String, String>>> {
+            : ResponseEntity<Void> {
         val principal = authentication.principal as CustomUserPrincipal
         memberService.removeMember(boardId, principal.userId, userId)
-        return ResponseEntity.ok(EntityModel.of(mapOf("message" to "Member removed")))
+        return ResponseEntity.noContent().build()
     }
 }

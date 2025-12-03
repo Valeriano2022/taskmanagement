@@ -81,10 +81,10 @@ class TaskController(
 
     @DeleteMapping("/{taskId}")
     fun deleteTask(authentication: Authentication, @PathVariable boardId: Long, @PathVariable taskId: Long)
-            : ResponseEntity<EntityModel<Map<String, String>>> {
+            : ResponseEntity<Void> {
         val principal = authentication.principal as CustomUserPrincipal
         taskService.deleteTask(taskId, boardId, principal.userId)
-        return ResponseEntity.ok(EntityModel.of(mapOf("message" to "Task deleted")))
+        return ResponseEntity.noContent().build()
     }
 
     @GetMapping

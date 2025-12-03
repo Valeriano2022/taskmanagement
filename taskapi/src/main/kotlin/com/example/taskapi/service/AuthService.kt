@@ -9,6 +9,7 @@ import com.example.taskapi.exception.UserNotFoundException
 import com.example.taskapi.model.User
 import com.example.taskapi.repository.UserRepository
 import com.example.taskapi.security.JwtUtil
+import jakarta.transaction.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -19,7 +20,7 @@ class AuthService(
     private val refreshTokenService: RefreshTokenService,
     private val jwtUtil: JwtUtil
 ) {
-
+    @Transactional
     fun signup(request: SignupRequest) {
         val email = request.email.trim().lowercase()
 
@@ -68,9 +69,8 @@ class AuthService(
             user = UserResponse(user.id!!, user.email)
         )
     }
-
-    fun logout(userId: Long): LogoutResponse {
+   @Transactional
+    fun logout(userId: Long) {
         refreshTokenService.revokeAllTokensForUser(userId)
-        return LogoutResponse("Successfully logged out")
     }
 }

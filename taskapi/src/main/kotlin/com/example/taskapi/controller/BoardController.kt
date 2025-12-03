@@ -52,10 +52,10 @@ class BoardController(
 
     @DeleteMapping("/{boardId}")
     fun deleteBoard(authentication: Authentication, @PathVariable boardId: Long)
-            : ResponseEntity<EntityModel<Map<String, String>>> {
+            : ResponseEntity<Void> {
         val principal = authentication.principal as CustomUserPrincipal
         boardService.deleteBoard(boardId, principal.userId)
-        return ResponseEntity.ok(EntityModel.of(mapOf("message" to "Board deleted")))
+        return ResponseEntity.noContent().build()
     }
 
     @GetMapping

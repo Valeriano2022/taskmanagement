@@ -5,6 +5,9 @@ import com.example.taskapi.dto.board.CreateBoardRequest
 import com.example.taskapi.dto.board.UpdateBoardRequest
 import com.example.taskapi.dto.websocket.BoardEvent
 import com.example.taskapi.model.Board
+import com.example.taskapi.model.BoardMember
+import com.example.taskapi.model.Role
+import com.example.taskapi.repository.BoardMemberRepository
 import com.example.taskapi.repository.BoardRepository
 import com.example.taskapi.repository.UserRepository
 import com.example.taskapi.utils.mapper.BoardMapper
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 class BoardService(
     private val boardRepository: BoardRepository,
     private val userRepository: UserRepository,
+    private val memberRepo: BoardMemberRepository,
     private val securityService: SecurityService,
     private val boardMapper: BoardMapper,
     private val notifications: NotificationService
@@ -31,6 +35,11 @@ class BoardService(
                 owner = owner
             )
         )
+        memberRepo.save(BoardMember(
+            board = board,
+            user = owner,
+            role = Role.OWNER
+        ))
         val dto = boardMapper.toResponse(board)
 
         notifications.boardEvent(board.id!!, BoardEvent("BOARD_CREATED", dto))
@@ -71,6 +80,7 @@ class BoardService(
         return boardMapper.toResponse(found)
     }
 
+    @Transactional(readOnly = true)
     fun listBoards(ownerId: Long, pageable: Pageable): Page<BoardResponse> =
         boardRepository.findAllByOwnerId(ownerId, pageable).map { boardMapper.toResponse(it) }
 }
