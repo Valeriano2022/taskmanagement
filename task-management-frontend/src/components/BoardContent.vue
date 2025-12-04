@@ -1,53 +1,58 @@
 <template>
   <div class="boards-content">
-    <template v-if="currentBoard && currentBoard.columns">
+    <template v-if="currentBoard">
       <h2>{{ currentBoard.name }}</h2>
-      
+
       <div class="task-grid-container">
         <TaskGrid
-          v-for="columnName in currentBoard.columns"
-          :key="columnName"
-          :status="columnName"
-          :tasks="filteredTasks(columnName)"
-          @open-task-modal="$emit('openTaskModal', $event)"
+          v-for="column in columns"
+          :key="column.id"
+          :column="column"
+          :tasks="filteredTasks(column.id)"
+          @open-task-modal="emit('openTaskModal', $event)"
         />
-        
+
         <div class="add-column">
-          <button class="add-column-btn">+ Add New Column</button>
+          <button class="add-column-btn">Add New Column</button>
         </div>
       </div>
     </template>
-    <p v-else class="no-board-selected">
-      Select a board from the sidebar or create a new one.
-    </p>
+
+    <p v-else class="no-board-selected">Select a board from the sidebar or create a new one.</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import TaskGrid from './TaskGrid.vue';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { computed } from 'vue';
+import TaskGrid from './TaskGrid.vue'
+import { computed, watch } from 'vue'
+import { useColumnStore } from '@/stores/useColumnStore'
+import type { BoardResponse } from '@/types/board'
+import type { TaskResponse } from '@/types/task'
 
-const props = defineProps({
-  currentBoard: {
-    type: Object,
-    default: () => ({})
+const props = defineProps<{
+  currentBoard: BoardResponse | null
+  tasks: TaskResponse[]
+}>()
+
+const emit = defineEmits<{
+  (e: 'openTaskModal', task: TaskResponse): void
+}>()
+
+const columnStore = useColumnStore()
+
+watch(
+  () => props.currentBoard?.id,
+  (id) => {
+    if (id) columnStore.loadColumns(id)
   },
-  tasks: {
-    type: Array,
-    required: true
-  }
-});
+  { immediate: true },
+)
 
-defineEmits(['openTaskModal']);
+const columns = computed(() => columnStore.orderedColumns)
 
-// Filter tasks to show only those belonging to the current board and a specific column
-const filteredTasks = (columnStatus) => {
-  if (!props.currentBoard.id) return [];
-  return props.tasks.filter(
-    task => task.boardId === props.currentBoard.id && task.status === columnStatus
-  );
-};
+const filteredTasks = (columnId: number) => {
+  return props.tasks.filter((t) => t.columnId === columnId)
+}
 </script>
 
 <style scoped>
@@ -56,17 +61,16 @@ const filteredTasks = (columnStatus) => {
 }
 
 .task-grid-container {
-  display: flex; /* Use flex to allow horizontal scrolling */
+  display: flex;
   gap: 20px;
   padding: 20px 0;
-  overflow-x: auto; /* Enable horizontal scrolling */
-  min-height: 80vh; /* Ensure container has enough height */
+  overflow-x: auto;
+  min-height: 80vh;
 }
 
-/* Base styles for a column (TaskGrid is one column) */
 .task-grid-container > div {
-  flex-shrink: 0; /* Prevent columns from shrinking */
-  width: 300px; /* Fixed width for each column */
+  flex-shrink: 0;
+  width: 300px;
 }
 
 .add-column {

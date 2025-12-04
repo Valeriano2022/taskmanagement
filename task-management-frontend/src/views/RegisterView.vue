@@ -1,33 +1,47 @@
 <template>
   <AuthLayout>
     <SignupForm @signup="handleSignUp" />
-    <p class="auth-link">Already have an account? <a href="#" @click.prevent="goToSignin">Sign In</a></p>
+    <p class="auth-link">
+      Already have an account? <a href="#" @click.prevent="goToSignin">Sign In</a>
+    </p>
   </AuthLayout>
 </template>
 
 <script setup lang="ts">
-import AuthLayout from '@/layouts/AuthLayout.vue';
-import SignupForm from '@/components/SignupForm.vue';
+import AuthLayout from '@/layouts/AuthLayout.vue'
+import SignupForm from '@/components/SignupForm.vue'
+import { signUp } from '@/services/useAuthService'
+import { useRouter } from 'vue-router'
 
-const handleSignUp = (formData) => {
-    alert(`Signing Up user: ${formData.name} with Email: ${formData.email}`);
-    // In a real app, this would route to SigninView or MainView on success
-};
+const router = useRouter()
+
+const handleSignUp = async (formData: { name: string; email: string; password: string }) => {
+  try {
+    await signUp({
+      email: formData.email,
+      password: formData.password,
+    })
+
+    router.push('/login')
+  } catch (err) {
+    console.error(err)
+    alert('Signup failed')
+  }
+}
 
 const goToSignin = () => {
-    alert("Navigating to Signin View (simulated)");
-    // In a real app, you would use a router (e.g., Vue Router) to change the view
-};
+  router.push('/login')
+}
 </script>
 
 <style scoped>
 .auth-link {
-    text-align: center;
-    margin-top: 20px;
-    color: #555;
+  text-align: center;
+  margin-top: 20px;
+  color: #555;
 }
 .auth-link a {
-    color: #3f51b5;
-    text-decoration: none;
+  color: #3f51b5;
+  text-decoration: none;
 }
 </style>

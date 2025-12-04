@@ -1,52 +1,52 @@
+<script setup lang="ts">
+import TaskCard from '@/components/TaskCard.vue'
+import type { TaskResponse } from '@/types/task'
+import type { BoardColumnResponse } from '@/types/column'
+
+const props = defineProps<{
+  column: BoardColumnResponse
+  tasks: TaskResponse[]
+}>()
+
+const emit = defineEmits<{
+  (e: 'openTaskModal', task: TaskResponse): void
+  (e: 'addTask', columnId: number): void
+}>()
+
+const getStatusColor = (name: string): string => {
+  switch (name.toLowerCase()) {
+    case 'todo':
+    case 'to do':
+      return '#4a90e2'
+    case 'in progress':
+      return '#f5a623'
+    case 'done':
+      return '#7ed321'
+    default:
+      return '#ccc'
+  }
+}
+</script>
+
 <template>
   <div class="task-grid">
     <h3 class="column-title">
-      <span class="dot" :style="{ backgroundColor: getStatusColor(status) }"></span>
-      {{ status }} ({{ tasks.length }})
+      <span class="dot" :style="{ backgroundColor: getStatusColor(props.column.name) }"></span>
+      {{ props.column.name }} ({{ props.tasks.length }})
     </h3>
-    
+
     <div class="tasks-list">
-      <TaskCard 
-        v-for="task in tasks" 
-        :key="task.id" 
-        :task="task" 
-        @click="$emit('openTaskModal', task)"
+      <TaskCard
+        v-for="task in props.tasks"
+        :key="task.id"
+        :task="task"
+        @click="emit('openTaskModal', task)"
       />
-      
-      <button class="add-task-btn">+ Add New Task</button>
+
+      <button class="add-task-btn" @click="emit('addTask', props.column.id)">+ Add New Task</button>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import TaskCard from '@/components/TaskCard.vue';
-
-defineProps({
-  status: {
-    type: String,
-    required: true
-  },
-  tasks: {
-    type: Array,
-    required: true
-  }
-});
-
-defineEmits(['openTaskModal']);
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'To Do': return '#4a90e2'; // Blue
-    case 'In Progress': return '#f5a623'; // Orange
-    case 'Done': return '#7ed321'; // Green
-    case 'Design': return '#9012f2'; // Purple
-    case 'Development': return '#12f2a6'; // Cyan
-    case 'Testing': return '#f21212'; // Red
-    case 'Deployed': return '#3d25d1'; // Dark Blue
-    default: return '#ccc';
-  }
-};
-</script>
 
 <style scoped>
 .task-grid {
@@ -92,7 +92,7 @@ const getStatusColor = (status) => {
   font-weight: bold;
 }
 .add-task-btn:hover {
-    border-color: #3f51b5;
-    color: #3f51b5;
+  border-color: #3f51b5;
+  color: #3f51b5;
 }
 </style>

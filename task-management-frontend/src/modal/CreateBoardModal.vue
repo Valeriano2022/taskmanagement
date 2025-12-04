@@ -1,21 +1,17 @@
 <template>
-  <div class="modal-backdrop" @click.self="$emit('close')">
+  <div class="modal-backdrop" @click.self="emit('close')">
     <div class="modal-content">
       <h3>Create New Board</h3>
+
       <form @submit.prevent="submitForm">
         <div class="form-group">
           <label for="board-name">Board Name</label>
-          <input type="text" id="board-name" v-model="boardName" required>
-        </div>
-
-        <div class="form-group">
-          <label>Board Columns</label>
-          <textarea v-model="columnsInput" rows="3" placeholder="Enter column names separated by commas (e.g., To Do, In Progress, Done)"></textarea>
+          <input type="text" id="board-name" v-model="boardName" required />
         </div>
 
         <div class="modal-actions">
           <button type="submit" class="btn-primary">Create Board</button>
-          <button type="button" class="btn-secondary" @click="$emit('close')">Cancel</button>
+          <button type="button" class="btn-secondary" @click="emit('close')">Cancel</button>
         </div>
       </form>
     </div>
@@ -23,23 +19,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
+import type { CreateBoardRequest } from '@/types/board'
 
-const boardName = ref('');
-const columnsInput = ref('To Do, In Progress, Done');
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'createBoard', payload: CreateBoardRequest): void
+}>()
 
-defineEmits(['close', 'createBoard']);
+const boardName = ref('')
 
 const submitForm = () => {
-  const columns = columnsInput.value.split(',').map(c => c.trim()).filter(c => c.length > 0);
-  if (boardName.value && columns.length > 0) {
-    const newBoard = {
-      name: boardName.value,
-      columns: columns,
-    };
-    emit('createBoard', newBoard);
+  if (!boardName.value.trim()) return
+
+  const payload: CreateBoardRequest = {
+    name: boardName.value.trim(),
   }
-};
+
+  emit('createBoard', payload)
+  emit('close')
+}
 </script>
 
 <style scoped>
@@ -74,7 +73,8 @@ label {
   margin-bottom: 5px;
   color: #333;
 }
-input[type="text"], textarea {
+input[type='text'],
+textarea {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
@@ -83,7 +83,7 @@ input[type="text"], textarea {
   font-size: 1em;
 }
 textarea {
-    resize: vertical;
+  resize: vertical;
 }
 .modal-actions {
   display: flex;

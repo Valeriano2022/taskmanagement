@@ -1,52 +1,64 @@
 <template>
-  <div class="modal-backdrop" @click.self="$emit('close')">
+  <div v-if="task" class="modal-backdrop" @click.self="emit('close')">
     <div class="modal-content">
       <div class="modal-header">
         <h3>{{ task.title }}</h3>
+
         <div class="actions">
-          <button @click="$emit('openEdit')" class="btn-icon edit-btn" title="Edit Task">
-            ✏️
-          </button>
-          <button @click="$emit('deleteTask', task)" class="btn-icon delete-btn" title="Delete Task">
+          <button @click="emit('edit')" class="btn-icon edit-btn" title="Edit Task">✏️</button>
+
+          <button
+            @click="emit('delete', task as TaskResponse)"
+            class="btn-icon delete-btn"
+            title="Delete Task"
+          >
             🗑️
           </button>
         </div>
       </div>
-      
+
       <p class="task-description-full">{{ task.description }}</p>
 
       <div class="details-section">
-        <p><strong>Status:</strong> <span class="detail-tag status">{{ task.status }}</span></p>
-        <p><strong>Priority:</strong> <span class="detail-tag priority">{{ task.priority }}</span></p>
+        <p>
+          <strong>Status:</strong> <span class="detail-tag status">{{ task.status }}</span>
+        </p>
+        <p>
+          <strong>Priority:</strong> <span class="detail-tag priority">{{ task.priority }}</span>
+        </p>
       </div>
 
       <div class="comments-section">
         <h4>Comments</h4>
         <p class="no-comments">No comments yet.</p>
         <div class="comment-input">
-            <input type="text" placeholder="Add a comment...">
-            <button class="btn-primary">Post</button>
+          <input type="text" placeholder="Add a comment..." />
+          <button class="btn-primary">Post</button>
         </div>
       </div>
-      
-      <button class="close-btn" @click="$emit('close')">Close</button>
+
+      <button class="close-btn" @click="emit('close')">Close</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps({
-  task: {
-    type: Object,
-    required: true
-  }
-});
+import type { TaskResponse } from '@/types/task'
 
-defineEmits(['close', 'openEdit', 'deleteTask']);
+const props = defineProps<{
+  task: TaskResponse | null
+}>()
+
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'edit'): void
+  (e: 'delete', task: TaskResponse): void
+}>()
+
+const { task } = props
 </script>
 
 <style scoped>
-/* Inherit modal base styles */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -63,7 +75,7 @@ defineEmits(['close', 'openEdit', 'deleteTask']);
   background: white;
   padding: 25px;
   border-radius: 8px;
-  width: 600px; /* Wider for details */
+  width: 600px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -120,28 +132,28 @@ defineEmits(['close', 'openEdit', 'deleteTask']);
 }
 
 .no-comments {
-    color: #999;
-    font-style: italic;
-    margin-bottom: 10px;
+  color: #999;
+  font-style: italic;
+  margin-bottom: 10px;
 }
 
 .comment-input {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
 .comment-input input {
-    flex-grow: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 .comment-input .btn-primary {
-    background-color: #3f51b5;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .close-btn {

@@ -1,26 +1,15 @@
 <template>
-  <li class="board-list-item" :class="{ 'is-active': board.id === activeBoardId }">
-    <span class="icon">📋</span> 
-    {{ board.name }}
+  <li class="board-list-item" :class="{ 'is-active': props.isActive }">
+    <span class="icon">📋</span>
+    {{ props.board.name }}
   </li>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
-  board: {
-    type: Object,
-    required: true
-  }
-});
-
-// A simple way to simulate active state based on the current board in MainView
-// In a real app, this prop would be passed down from MainView
-const activeBoardId = computed(() => {
-    // For demonstration, let's assume the first board is active
-    return 1; 
-});
+  board: { type: Object, required: true },
+  isActive: { type: Boolean, required: true },
+})
 </script>
 
 <style scoped>

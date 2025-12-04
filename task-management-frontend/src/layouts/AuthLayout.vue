@@ -20,15 +20,16 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: #f0f2f5; /* Light background for auth */
+  padding: 20px;
+  background-color: #f0f2f5;
 }
 
 .auth-header {
-    margin-bottom: 30px;
+  margin-bottom: 30px;
 }
 .auth-header h1 {
-    color: #3f51b5; /* Indigo */
-    font-size: 2.5em;
+  color: #3f51b5; /* Indigo */
+  font-size: 2.5em;
 }
 
 .auth-content {

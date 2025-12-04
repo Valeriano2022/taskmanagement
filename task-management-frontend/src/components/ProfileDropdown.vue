@@ -1,25 +1,63 @@
 <template>
-  <div class="profile-dropdown">
-    <button class="profile-btn" @click="isOpen = !isOpen">
-      <span class="initials">JD</span>
+  <div class="profile-dropdown" ref="dropdownRef">
+    <button class="profile-btn" @click="toggleDropdown">
+      <span class="initials">{{ initials }}</span>
     </button>
+
     <div v-if="isOpen" class="dropdown-menu">
       <div class="user-info">
-        <p>John Doe</p>
-        <small>john.doe@example.com</small>
+        <p>{{ userName }}</p>
+        <small>{{ userEmail }}</small>
       </div>
+
       <button class="menu-item">My Profile</button>
       <button class="menu-item">Settings</button>
-      <hr>
-      <button class="menu-item logout">Logout</button>
+      <hr />
+      <button class="menu-item logout" @click="emit('logout')">Logout</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-const isOpen = ref(false);
+const emit = defineEmits<{
+  (e: 'logout'): void
+}>()
+
+const props = defineProps<{
+  userName?: string
+  userEmail?: string
+}>()
+
+const isOpen = ref(false)
+const dropdownRef = ref<HTMLElement | null>(null)
+
+const initials = props.userName
+  ? props.userName
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+  : '??'
+
+const toggleDropdown = () => {
+  isOpen.value = !isOpen.value
+}
+
+const handleClickOutside = (e: MouseEvent) => {
+  if (!dropdownRef.value) return
+  if (!dropdownRef.value.contains(e.target as Node)) {
+    isOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped>

@@ -1,23 +1,29 @@
 <template>
   <div class="sidebar">
     <h3 class="title">All Boards ({{ boards.length }})</h3>
-    <BoardList :boards="boards" @select-board="$emit('selectBoard', $event)" />
-    <button @click="$emit('openBoardModal')" class="btn-primary">
-      + Add New Board
-    </button>
+
+    <BoardList :boards="props.boards" @select-board="handleSelectBoard" />
+
+    <button @click="emit('openBoardModal')" class="btn-primary">+ Add New Board</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import BoardList from './BoardList.vue';
+import BoardList from './BoardList.vue'
+import type { BoardResponse } from '@/types/board'
 
-defineProps({
-  boards: {
-    type: Array,
-    required: true
-  }
-});
-defineEmits(['selectBoard', 'openBoardModal']);
+const props = defineProps<{
+  boards: BoardResponse[]
+}>()
+
+const emit = defineEmits<{
+  (e: 'selectBoard', id: number): void
+  (e: 'openBoardModal'): void
+}>()
+
+const handleSelectBoard = (id: number) => {
+  emit('selectBoard', id)
+}
 </script>
 
 <style scoped>

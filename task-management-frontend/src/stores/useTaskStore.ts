@@ -5,23 +5,44 @@ import type {
   UpdateTaskRequest,
   AssignTaskRequest,
 } from '@/types/task'
-import { createTask, getTask, updateTask, deleteTask, assignTask } from '@/services/useTaskService'
+import {
+  createTask,
+  getTask,
+  updateTask,
+  deleteTask,
+  assignTask,
+  getTasks,
+} from '@/services/useTaskService'
+import type { HateoasLinks, PageMetadata } from '@/types/hateoas'
 
 export const useTaskStore = defineStore('task', {
   state: () => ({
     tasks: [] as TaskResponse[],
     activeTask: null as TaskResponse | null,
+    pageInfo: null as PageMetadata | null,
+    links: null as HateoasLinks | null,
     loading: false,
   }),
 
   actions: {
+    async loadTasks(boardId: number, page = 0, size = 10) {
+      this.loading = true
+      try {
+        const { items, page: pageInfo, links } = await getTasks(boardId, page, size)
+
+        this.tasks = items
+        this.pageInfo = pageInfo
+        this.links = links
+      } finally {
+        this.loading = false
+      }
+    },
     async loadTask(boardId: number, taskId: number) {
       this.loading = true
       try {
         const task = await getTask(boardId, taskId)
         this.activeTask = task
 
-        // sync list
         const index = this.tasks.findIndex((t) => t.id === taskId)
         if (index !== -1) {
           this.tasks[index] = task

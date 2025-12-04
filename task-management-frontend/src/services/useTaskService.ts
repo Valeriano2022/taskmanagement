@@ -1,5 +1,5 @@
 import { api } from '@/api/api-client'
-import { unwrapEntity, type EntityModel, unwrapPaged, unwrapCollection } from '@/types/hateoas'
+import { unwrapEntity, unwrapPaged, type EntityModel, type PagedModel } from '@/types/hateoas'
 import type {
   CreateTaskRequest,
   UpdateTaskRequest,
@@ -20,6 +20,14 @@ export async function getTask(boardId: number, taskId: number) {
     `/api/boards/${boardId}/tasks/${taskId}`,
   )
   return unwrapEntity(response.data)
+}
+
+export async function getTasks(boardId: number, pages: number = 0, size: number = 10) {
+  const response = await api.get<PagedModel<TaskResponse>>(`/api/boards/${boardId}/tasks`, {
+    params: { pages, size },
+  })
+  const { items, page, links } = unwrapPaged(response.data)
+  return { items, page, links }
 }
 
 export async function updateTask(boardId: number, taskId: number, payload: UpdateTaskRequest) {

@@ -16,7 +16,6 @@ export const useMemberStore = defineStore('member', {
         const member = await getMember(boardId, memberId)
         this.activeMember = member
 
-        // Update in list if exists
         const index = this.members.findIndex((m) => m.id === memberId)
         if (index !== -1) {
           this.members[index] = member

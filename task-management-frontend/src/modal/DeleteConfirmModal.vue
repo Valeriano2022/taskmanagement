@@ -1,32 +1,36 @@
 <template>
-  <div class="modal-backdrop" @click.self="$emit('close')">
+  <div class="modal-backdrop" @click.self="emit('close')">
     <div class="modal-content delete-modal">
       <h3 class="delete-title">Delete {{ itemType }}?</h3>
-      
+
       <p class="delete-message">
-        Are you sure you want to delete the **{{ itemType }}** called "**{{ itemName }}**"?
+        Are you sure you want to delete the "{{ itemName }}" {{ itemType }}?
       </p>
 
       <div class="modal-actions">
-        <button class="btn-cancel" @click="$emit('close')">Cancel</button>
-        <button class="btn-delete" @click="$emit('confirmDelete')">Delete</button>
+        <button class="btn-cancel" @click="emit('close')">Cancel</button>
+        <button class="btn-delete" @click="emit('confirm', item)">Delete</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps({
-  itemName: {
-    type: String,
-    required: true
-  },
-  itemType: {
-    type: String,
-    required: true // 'Task' or 'Board'
-  }
-});
-defineEmits(['close', 'confirmDelete']);
+import type { TaskResponse } from '@/types/task'
+import type { BoardResponse } from '@/types/board'
+
+const props = defineProps<{
+  item: TaskResponse | BoardResponse | null
+  itemName: string
+  itemType: 'Task' | 'Board' | ''
+}>()
+
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'confirm', item: TaskResponse | BoardResponse | null): void
+}>()
+
+const { item, itemName, itemType } = props
 </script>
 
 <style scoped>
@@ -68,7 +72,8 @@ defineEmits(['close', 'confirmDelete']);
   gap: 15px;
 }
 
-.btn-delete, .btn-cancel {
+.btn-delete,
+.btn-cancel {
   flex-grow: 1;
   padding: 10px;
   border-radius: 4px;

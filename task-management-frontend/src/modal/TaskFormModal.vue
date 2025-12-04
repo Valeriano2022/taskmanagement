@@ -1,11 +1,12 @@
 <template>
-  <div class="modal-backdrop" @click.self="$emit('close')">
+  <div class="modal-backdrop" @click.self="emit('close')">
     <div class="modal-content">
       <h3>{{ isEdit ? 'Edit Task' : 'Create New Task' }}</h3>
+
       <form @submit.prevent="submitForm">
         <div class="form-group">
           <label for="task-title">Title</label>
-          <input type="text" id="task-title" v-model="formData.title" required>
+          <input type="text" id="task-title" v-model="formData.title" required />
         </div>
 
         <div class="form-group">
@@ -24,7 +25,7 @@
 
         <div class="form-group">
           <label for="task-priority">Priority</label>
-          <select id="task-priority" v-model="formData.priority" required>
+          <select id="task-priority" v-model="formData.priority">
             <option value="Low">Low</option>
             <option value="Medium">Medium</option>
             <option value="High">High</option>
@@ -35,7 +36,7 @@
           <button type="submit" class="btn-primary">
             {{ isEdit ? 'Save Changes' : 'Create Task' }}
           </button>
-          <button type="button" class="btn-secondary" @click="$emit('close')">Cancel</button>
+          <button type="button" class="btn-secondary" @click="emit('close')">Cancel</button>
         </div>
       </form>
     </div>
@@ -43,51 +44,43 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue';
+import { reactive, watchEffect } from 'vue'
+import type { TaskResponse, CreateTaskRequest, UpdateTaskRequest } from '@/types/task'
 
-const props = defineProps({
-  initialTask: {
-    type: Object,
-    default: null
-  },
-  isEdit: {
-    type: Boolean,
-    default: false
-  },
-  boardId: {
-    type: Number,
-    required: true
-  }
-});
+const props = defineProps<{
+  task: TaskResponse | null
+  isEdit: boolean
+  boardId: number
+}>()
 
-const emit = defineEmits(['close', 'saveTask']);
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'save', payload: CreateTaskRequest | UpdateTaskRequest): void
+}>()
 
-// Reactive state for the form data
-const formData = reactive({
-  id: null,
-  boardId: props.boardId,
+const formData = reactive<CreateTaskRequest & Partial<UpdateTaskRequest>>({
   title: '',
   description: '',
   status: 'To Do',
   priority: 'Medium',
-});
+  boardId: props.boardId,
+})
 
-// Set initial data if editing
-onMounted(() => {
-  if (props.initialTask) {
-    Object.assign(formData, props.initialTask);
+watchEffect(() => {
+  if (props.task && props.isEdit) {
+    Object.assign(formData, props.task)
   }
-});
+})
 
 const submitForm = () => {
-  // Ensure boardId is always correct
-  formData.boardId = props.boardId;
-  emit('saveTask', { ...formData });
-};
+  formData.boardId = props.boardId
+
+  emit('save', { ...formData })
+  emit('close')
+}
 </script>
 
 <style scoped>
-/* Inherit modal styles from CreateBoardModal or use your own */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -116,7 +109,9 @@ label {
   margin-bottom: 5px;
   color: #333;
 }
-input[type="text"], textarea, select {
+input[type='text'],
+textarea,
+select {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
@@ -125,7 +120,7 @@ input[type="text"], textarea, select {
   font-size: 1em;
 }
 textarea {
-    resize: vertical;
+  resize: vertical;
 }
 .modal-actions {
   display: flex;

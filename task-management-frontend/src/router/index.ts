@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
 import LoginView from '@/views/LoginView.vue'
 import MainView from '@/views/MainView.vue'
+import RegisterView from '@/views/RegisterView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -13,6 +14,10 @@ const router = createRouter({
     {
       path: '/board',
       component: MainView,
+    },
+    {
+      path: '/signup',
+      component: RegisterView,
     },
   ],
 })

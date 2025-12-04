@@ -6,16 +6,22 @@ export interface AssignTaskRequest {
 
 export interface CreateTaskRequest {
   title: string
+  boardId: number
   description?: string
+  status: string
+  priority: string
   assigneeId?: number
 }
 
 export interface TaskResponse {
   id: number
+  boardId: number
+  columnId: number
+  columnName: string
   title: string
   description: string
   assignee?: UserResponse
-  status: string
+  priority: string
   createdAt: string
   updatedAt: string
 }
@@ -23,5 +29,7 @@ export interface TaskResponse {
 export interface UpdateTaskRequest {
   title?: string
   description?: string
+  status?: string
+  priority?: string
   assigneeId?: number
 }

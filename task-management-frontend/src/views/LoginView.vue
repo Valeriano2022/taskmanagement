@@ -1,33 +1,50 @@
 <template>
   <AuthLayout>
     <SigninForm @signin="handleSignIn" />
-    <p class="auth-link">Don't have an account? <a href="#" @click.prevent="goToSignup">Sign Up</a></p>
+    <p class="auth-link">
+      Don't have an account? <a href="#" @click.prevent="goToSignup">Sign Up</a>
+    </p>
   </AuthLayout>
 </template>
 
 <script setup lang="ts">
-import AuthLayout from '@/layouts/AuthLayout.vue';
-import SigninForm from '@/components/SigninForm.vue';
+import AuthLayout from '@/layouts/AuthLayout.vue'
+import SigninForm from '@/components/SigninForm.vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { logIn } from '@/services/useAuthService'
 
-const handleSignIn = (credentials) => {
-    alert(`Signing In with Email: ${credentials.email}`);
-    // In a real app, this would route to MainView on success
-};
+const router = useRouter()
+const auth = useAuthStore()
+
+const handleSignIn = async (payload: { email: string; password: string }) => {
+  const res = await logIn({
+    email: payload.email,
+    password: payload.password,
+  })
+
+  auth.login({
+    user: res.user,
+    accessToken: res.accessToken,
+    refreshToken: res.refreshToken,
+  })
+
+  router.push('/board')
+}
 
 const goToSignup = () => {
-    alert("Navigating to Signup View (simulated)");
-    // In a real app, you would use a router (e.g., Vue Router) to change the view
-};
+  router.push('/signup')
+}
 </script>
 
 <style scoped>
 .auth-link {
-    text-align: center;
-    margin-top: 20px;
-    color: #555;
+  text-align: center;
+  margin-top: 20px;
+  color: #555;
 }
 .auth-link a {
-    color: #3f51b5;
-    text-decoration: none;
+  color: #3f51b5;
+  text-decoration: none;
 }
 </style>
