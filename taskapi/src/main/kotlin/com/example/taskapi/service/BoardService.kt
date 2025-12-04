@@ -70,7 +70,8 @@ class BoardService(
             id = boardId,
             name = null,
             owner = null,
-            members = null
+            members = null,
+            columns = null
         )))
     }
 

@@ -23,10 +23,10 @@ class MemberService(
 ) {
 
     @Transactional
-    fun inviteMember(boardId: Long, ownerId: Long, request: InviteMemberRequest){
+    fun inviteMember(boardId: Long, ownerId: Long, request: InviteMemberRequest?){
         securityService.assertIsOwner(boardId, ownerId)
 
-        val email = request.email.trim().lowercase()
+        val email = request?.email?.trim()?.lowercase().toString()
         val user = userRepository.findByEmail(email)
             ?: throw UserNotFoundException(email)
 

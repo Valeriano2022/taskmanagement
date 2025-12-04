@@ -38,7 +38,9 @@ class TaskService(
                 title = request.title.trim(),
                 description = request.description?.trim(),
                 board = board,
-                assignee = assignee
+                assignee = assignee,
+                status = request.status,
+                priority = request.priority,
             )
         )
 
@@ -55,14 +57,14 @@ class TaskService(
     }
 
     @Transactional
-    fun updateTask(taskId: Long, boardId: Long, userId: Long, request: UpdateTaskRequest): TaskResponse {
+    fun updateTask(taskId: Long, boardId: Long, userId: Long, request: UpdateTaskRequest?): TaskResponse {
         securityService.assertIsMember(boardId, userId)
 
         val task = taskRepository.findById(taskId).orElseThrow { TaskNotFoundException(taskId) }
 
-        task.title = request.title.trim()
-        task.description = request.description?.trim()
-        task.assignee = request.assigneeId?.let { userRepository.findById(it).orElse(null) }
+        task.title = request?.title?.trim().toString()
+        task.description = request?.description?.trim()
+        task.assignee = request?.assigneeId?.let { userRepository.findById(it).orElse(null) }
 
         val saved = taskRepository.save(task)
         val dto = taskMapper.toResponse(saved)
@@ -104,6 +106,7 @@ class TaskService(
         notifications.taskEvent(boardId, taskId, TaskEvent("TASK_DELETED"))
     }
 
+    @Transactional(readOnly = true)
     fun listTasks(boardId: Long, userId: Long, pageable: Pageable): Page<TaskResponse> {
         securityService.assertIsMember(boardId, userId)
         return taskRepository.findAllByBoardId(boardId, pageable)

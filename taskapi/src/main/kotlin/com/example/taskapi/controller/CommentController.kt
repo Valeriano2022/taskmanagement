@@ -13,25 +13,25 @@ import org.springframework.web.bind.annotation.*
 import jakarta.validation.Valid
 
 @RestController
-@RequestMapping("/api/tasks/{taskId}/comments")
+@RequestMapping("/api/boards/{boardId}/tasks/{taskId}/comments")
 class CommentController(
     private val commentService: CommentService,
     private val commentLinks: CommentLinks
 ) {
 
     @PostMapping
-    fun createComment(authentication: Authentication, @PathVariable taskId: Long, @Valid @RequestBody request: CreateCommentRequest)
+    fun createComment(authentication: Authentication?, @PathVariable boardId: Long, @PathVariable taskId: Long, @Valid @RequestBody request: CreateCommentRequest?)
             : ResponseEntity<EntityModel<TaskCommentResponse>> {
-        val principal = authentication.principal as CustomUserPrincipal
+        val principal = authentication?.principal as CustomUserPrincipal
         val comment = commentService.createComment(taskId, principal.userId, request)
-        return ResponseEntity.ok(commentLinks.addTo(EntityModel.of(comment), taskId))
+        return ResponseEntity.ok(commentLinks.addTo(EntityModel.of(comment), boardId, taskId))
     }
 
     @GetMapping
-    fun listComments(@PathVariable taskId: Long)
+    fun listComments(@PathVariable boardId: Long, @PathVariable taskId: Long)
             : ResponseEntity<CollectionModel<EntityModel<TaskCommentResponse>>> {
         val comments = commentService.listComments(taskId).map { it }
         val models = comments.map { EntityModel.of(it) }
-        return ResponseEntity.ok(CollectionModel.of(models).add(commentLinks.self(taskId)))
+        return ResponseEntity.ok(CollectionModel.of(models).add(commentLinks.self(boardId, taskId)))
     }
 }

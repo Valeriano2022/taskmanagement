@@ -8,37 +8,35 @@ import org.springframework.stereotype.Component
 
 @Component
 class TaskLinks {
-    fun self(boardId: Long, taskId: Long) =
-        linkTo(TaskController::class.java)
-            .slash(boardId)
-            .slash("tasks")
-            .slash(taskId)
-            .withSelfRel()
 
-    fun comments(taskId: Long) =
-        linkTo(CommentController::class.java)
-            .slash(taskId)
-            .slash("comments")
-            .withRel("comments")
+    fun self(boardId: Long, taskId: Long) =
+        linkTo(
+            methodOn(TaskController::class.java)
+                .getTask(null, boardId, taskId)
+        ).withSelfRel()
+
+    fun comments(boardId: Long, taskId: Long) =
+        linkTo(
+            methodOn(CommentController::class.java)
+                .listComments(boardId, taskId)
+        ).withRel("comments")
 
     fun update(boardId: Long, taskId: Long) =
-        linkTo(TaskController::class.java)
-            .slash(boardId)
-            .slash("tasks")
-            .slash(taskId)
-            .withRel("update")
+        linkTo(
+            methodOn(TaskController::class.java)
+                .updateTask(null, boardId, taskId, null)
+        ).withRel("update")
 
     fun delete(boardId: Long, taskId: Long) =
-        linkTo(TaskController::class.java)
-            .slash(boardId)
-            .slash("tasks")
-            .slash(taskId)
-            .withRel("delete")
+        linkTo(
+            methodOn(TaskController::class.java)
+                .deleteTask(null, boardId, taskId)
+        ).withRel("delete")
 
-    fun <T: Any> addTo(model: EntityModel<T>, boardId: Long, taskId: Long): EntityModel<T> =
+    fun <T : Any> addTo(model: EntityModel<T>, boardId: Long, taskId: Long): EntityModel<T> =
         model
             .add(self(boardId, taskId))
             .add(update(boardId, taskId))
             .add(delete(boardId, taskId))
-            .add(comments(taskId))
+            .add(comments(boardId, taskId))
 }

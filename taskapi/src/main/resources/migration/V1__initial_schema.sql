@@ -34,6 +34,8 @@ CREATE TABLE tasks (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
+    priority VARCHAR(50) NOT NULL,
+    column_id BIGINT REFERENCES board_columns(id)
     board_id BIGINT NOT NULL REFERENCES boards(id) ON DELETE CASCADE,
     assignee_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
     created_by BIGINT,
@@ -58,9 +60,22 @@ CREATE TABLE refresh_tokens (
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token VARCHAR(255) NOT NULL UNIQUE,
     expiry_date TIMESTAMP NOT NULL,
+    expired BOOLEAN NOT FULL DEFAULT FALSE,
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
     created_by BIGINT,
     created_at TIMESTAMP,
     updated_by BIGINT,
     updated_at TIMESTAMP
+);
+
+CREATE TABLE board_columns (
+    id BIGSERIAL PRIMARY KEY,
+    board_id BIGINT NOT NULL REFERENCES boards(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    position INT NOT NULL,
+    created_by BIGINT,
+    created_at TIMESTAMP,
+    updated_by BIGINT,
+    updated_at TIMESTAMP,
+    CONSTRAINT unique_board_column UNIQUE (board_id, name)
 );

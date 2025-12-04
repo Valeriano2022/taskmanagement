@@ -4,6 +4,7 @@ import com.example.taskapi.dto.task.AssignTaskRequest
 import com.example.taskapi.dto.task.CreateTaskRequest
 import com.example.taskapi.dto.task.TaskResponse
 import com.example.taskapi.dto.task.UpdateTaskRequest
+import com.example.taskapi.exception.InvalidRequestException
 import com.example.taskapi.hateoas.TaskLinks
 import com.example.taskapi.security.CustomUserPrincipal
 import com.example.taskapi.service.TaskService
@@ -22,19 +23,18 @@ import jakarta.validation.Valid
 @RequestMapping("/api/boards/{boardId}/tasks")
 class TaskController(
     private val taskService: TaskService,
-    private val taskMapper: TaskMapper,
     private val taskLinks: TaskLinks,
     private val pagedAssembler: PagedResourcesAssembler<TaskResponse>
 ) {
 
     @PostMapping
     fun createTask(
-        authentication: Authentication,
+        authentication: Authentication?,
         @PathVariable boardId: Long,
         @Valid @RequestBody
         request: CreateTaskRequest
     ) : ResponseEntity<EntityModel<TaskResponse>> {
-        val principal = authentication.principal as CustomUserPrincipal
+        val principal = authentication?.principal as CustomUserPrincipal
         val task = taskService.createTask(boardId, principal.userId, request)
         return ResponseEntity.ok(taskLinks
             .addTo(EntityModel.of(task), boardId, task.id))
@@ -42,11 +42,11 @@ class TaskController(
 
     @GetMapping("/{taskId}")
     fun getTask(
-        authentication: Authentication,
+        authentication: Authentication?,
         @PathVariable boardId: Long,
         @PathVariable taskId: Long
     ) : ResponseEntity<EntityModel<TaskResponse>> {
-        val principal = authentication.principal as CustomUserPrincipal
+        val principal = authentication?.principal as CustomUserPrincipal
         val task = taskService.getTask(taskId, boardId, principal.userId)
         return ResponseEntity.ok(taskLinks.addTo(EntityModel
             .of(task), boardId, taskId))
@@ -54,13 +54,13 @@ class TaskController(
 
     @PutMapping("/{taskId}")
     fun updateTask(
-        authentication: Authentication,
+        authentication: Authentication?,
         @PathVariable boardId: Long,
         @PathVariable taskId: Long,
         @Valid @RequestBody
-        request: UpdateTaskRequest)
+        request: UpdateTaskRequest?)
             : ResponseEntity<EntityModel<TaskResponse>> {
-        val principal = authentication.principal as CustomUserPrincipal
+        val principal = authentication?.principal as CustomUserPrincipal
         val task = taskService.updateTask(taskId, boardId, principal.userId, request)
         return ResponseEntity.ok(taskLinks.addTo(EntityModel
             .of(task), boardId, taskId))
@@ -68,32 +68,32 @@ class TaskController(
 
     @PutMapping("/{taskId}/assign")
     fun assignTask(
-        authentication: Authentication,
+        authentication: Authentication?,
         @PathVariable boardId: Long,
         @PathVariable taskId: Long,
         @RequestBody request: AssignTaskRequest
     ): ResponseEntity<EntityModel<TaskResponse>> {
-        val principal = authentication.principal as CustomUserPrincipal
+        val principal = authentication?.principal as CustomUserPrincipal
         val task = taskService.assignTask(taskId, boardId, principal.userId, request)
         return ResponseEntity.ok(taskLinks.addTo(EntityModel
             .of(task), boardId, taskId))
     }
 
     @DeleteMapping("/{taskId}")
-    fun deleteTask(authentication: Authentication, @PathVariable boardId: Long, @PathVariable taskId: Long)
+    fun deleteTask(authentication: Authentication?, @PathVariable boardId: Long, @PathVariable taskId: Long)
             : ResponseEntity<Void> {
-        val principal = authentication.principal as CustomUserPrincipal
+        val principal = authentication?.principal as CustomUserPrincipal
         taskService.deleteTask(taskId, boardId, principal.userId)
         return ResponseEntity.noContent().build()
     }
 
     @GetMapping
     fun listTasks(
-        authentication: Authentication,
+        authentication: Authentication?,
         @PathVariable boardId: Long,
         pageable: Pageable
     ): ResponseEntity<PagedModel<EntityModel<TaskResponse>>> {
-        val principal = authentication.principal as CustomUserPrincipal
+        val principal = authentication?.principal as CustomUserPrincipal
         val page = taskService.listTasks(boardId, principal.userId, pageable).map { it }
         val model = pagedAssembler.toModel(page)
         { dto -> taskLinks.addTo(EntityModel.of(dto), boardId, dto.id) }

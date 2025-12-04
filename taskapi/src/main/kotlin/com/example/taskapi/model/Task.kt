@@ -14,16 +14,24 @@ data class Task(
     @Column(nullable = true)
     var description: String? = null,
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable =  false)
+    var priority: TaskPriority,
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "board_id")
     val board: Board,
+
+    @ManyToOne
+    @JoinColumn(name = "column_id")
+    val column: BoardColumn,
 
     @ManyToOne
     @JoinColumn(name = "assignee_id")
     var assignee: User? = null,
 
     @OneToMany(mappedBy = "task", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val comments: List<TaskComment> = emptyList(),
+    var comments: List<TaskComment> = emptyList(),
 
     @Embedded
     var audit: AuditFields = AuditFields()

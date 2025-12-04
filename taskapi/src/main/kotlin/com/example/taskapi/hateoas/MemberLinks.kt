@@ -10,25 +10,26 @@ import org.springframework.stereotype.Component
 class MemberLinks {
 
     fun self(boardId: Long) =
-        linkTo(MemberController::class.java)
-            .slash(boardId)
-            .slash("members")
-            .withSelfRel()
+        linkTo(
+            methodOn(MemberController::class.java)
+                .listMembers(null, boardId)
+        ).withSelfRel()
 
     fun invite(boardId: Long) =
-        linkTo(MemberController::class.java)
-            .slash(boardId)
-            .slash("members")
-            .slash("invite")
-            .withRel("invite")
+        linkTo(
+            methodOn(MemberController::class.java)
+                .inviteMember(null, boardId, null)
+        ).withRel("invite")
 
     fun remove(boardId: Long, userId: Long) =
-        linkTo(MemberController::class.java)
-            .slash(boardId)
-            .slash("members")
-            .slash(userId)
-            .withRel("remove")
+        linkTo(
+            methodOn(MemberController::class.java)
+                .removeMember(null, boardId, userId)
+        ).withRel("remove")
 
-    fun <T : Any> addTo(model: EntityModel<T>, boardId: Long): EntityModel<T> =
-        model.add(self(boardId), invite(boardId))
+    fun <T: Any> addTo(model: EntityModel<T>, boardId: Long): EntityModel<T> =
+        model
+            .add(self(boardId))
+            .add(invite(boardId))
 }
+

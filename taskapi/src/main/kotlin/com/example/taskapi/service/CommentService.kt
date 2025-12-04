@@ -21,7 +21,7 @@ class CommentService(
 ) {
 
     @Transactional
-    fun createComment(taskId: Long, userId: Long, request: CreateCommentRequest): TaskCommentResponse {
+    fun createComment(taskId: Long, userId: Long, request: CreateCommentRequest?): TaskCommentResponse {
         val task = taskRepository.findById(taskId).orElseThrow { TaskNotFoundException(taskId) }
 
         if (!boardMemberRepository.existsByBoardIdAndUserId(task.board.id!!, userId)) {
@@ -32,7 +32,7 @@ class CommentService(
 
         val saved = commentRepository.save(
             TaskComment(
-                content = request.content.trim(),
+                content = request?.content?.trim().toString(),
                 task = task,
                 author = author
             )
@@ -43,7 +43,7 @@ class CommentService(
 
         return dto
     }
-
+    @Transactional(readOnly = true)
     fun listComments(taskId: Long) =
         taskRepository.findById(taskId)
             .orElseThrow { TaskNotFoundException(taskId) }
